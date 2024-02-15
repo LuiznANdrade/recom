@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formulário de Ações</title>
+<style>
+  /* Estilos CSS para o layout */
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+  }
+  form {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  label {
+    display: block;
+    margin-bottom: 5px;
+  }
+  input, select {
+    width: calc(100% - 30px);
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  select {
+    width: 100%;
+  }
+  .action-container {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+  }
+  .action-name, .action-unit, .action-unit-select {
+    width: 45%;
+    margin-right: 5%;
+  }
+  #result {
+    margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+
+<form id="actionForm">
+  <label for="actionSelect">Nome da Ação:</label>
+  <select id="actionSelect" onchange="updateInputs()" required>
+    <option value="">Selecione...</option>
+    <option value="Comedy">🎭 | Comedy</option>
+    <option value="Yellow">🥃 | Bar Yellow Jack</option>
+    <option value="Residas">🏘️ | Residências (Residas)</option>
+    <option value="Barbearia">💈 | Barbearia</option>
+    <option value="Bebidas">🥤| Bebidas</option>
+    <option value="Lojinha">🏬 | Loja de Departamento (Lojinha)</option>
+    <option value="Ammunation">🔫 | Ammunation</option>
+  </select>
+
+  <label for="dateInput">Data:</label>
+  <input type="text" id="dateInput" value="" readonly>
+
+  <div id="actionInputs">
+  </div>
+
+  <button type="button" onclick="generateImage()">Gerar Imagem</button>
+  <div class="bloco-notas">
+    <h1>Caso queira anotar algo está aqui...</h1>
+    <textarea name="" id="" cols="30" rows="10"></textarea>
+  </div>
+</form>
+
+<div id="result"></div>
+
+<script>
+// Mapeamento de unidades para valores correspondentes
+const unitValues = {
+  'PMERJ': '<:pmerj2:1201206531392274482>',
+  'CORE': '<:core:1201203385270030417>',
+  'CIVIL': '<:civil:1201203323076874352>',
+  'PRF': '<:prf:1201203351828836372>',
+  'BOPE': '<:bope:1201203296879255603>',
+  'RECOM': '<:recom:1207484858360930344>',
+  'GAM': '<:gam:1201204062528475248>'
+};
+
+// Função para atualizar os inputs com base na seleção da ação
+function updateInputs() {
+  var actionSelect = document.getElementById('actionSelect');
+  var actionInputs = document.getElementById('actionInputs');
+  var selectedAction = actionSelect.value;
+  
+  // Limpa os inputs antigos
+  actionInputs.innerHTML = '';
+
+  // Define o número de inputs com base na ação selecionada
+  var numInputs = 0;
+  if (selectedAction === 'comedy') {
+    numInputs = 7;
+  } else if (selectedAction === 'Yellow') {
+    numInputs = 6;
+  } else if (selectedAction === 'Residas') {
+    numInputs = 4;
+  } else if (selectedAction === 'Barbearia') {
+    numInputs = 4;
+  } else if (selectedAction === 'Bebidas') {
+    numInputs = 5;
+  } else if (selectedAction === 'Lojinha') {
+    numInputs = 7;
+  } else if (selectedAction === 'Ammunation') {
+    numInputs = 4;
+  }
+  
+  // Adiciona os novos inputs
+  for (var i = 0; i < numInputs; i++) {
+    var div = document.createElement('div');
+    div.className = 'action-container';
+
+    var nameInput = document.createElement('input');
+    nameInput.type = 'text';
+    nameInput.placeholder = 'Nome';
+    nameInput.required = true;
+    nameInput.className = 'action-name';
+    div.appendChild(nameInput);
+
+    var unitSelect = document.createElement('select');
+    unitSelect.className = 'action-unit-select';
+    for (const [unit, value] of Object.entries(unitValues)) {
+      var option = document.createElement('option');
+      option.value = value;
+      option.text = unit;
+      unitSelect.appendChild(option);
+    }
+    div.appendChild(unitSelect);
+
+    actionInputs.appendChild(div);
+  }
+}
+
+// Função para gerar a imagem com base nos inputs fornecidos
+function generateImage() {
+  var actionName = document.getElementById('actionSelect').value;
+  var date = document.getElementById('dateInput').value;
+  var actions = document.querySelectorAll('.action-container');
+  var output = `📍${actionName}\n📆 ${date}\nOficiais Alinhados:`;
+
+  var names = [];
+  actions.forEach(function(action, index) {
+    var name = action.querySelector('.action-name').value;
+    var unit = action.querySelector('.action-unit-select').value;
+    if(name !== "" && name !== undefined){
+        names.push(`${name}(${unit})`);
+    }
+   });
+
+    if (names.length > 0) {
+        output += " @";
+        output += names.join(", @");
+    }
+
+
+  // Copia o resultado para a área de transferência
+  navigator.clipboard.writeText(output)
+    .then(() => {
+      alert('Texto copiado com sucesso!');
+    })
+    .catch(err => {
+      console.error('Falha ao copiar texto: ', err);
+    });
+}
+
+// Chama updateInputs quando a página carrega
+updateInputs();
+var dataAtual = new Date();
+var dia = dataAtual.getDate();
+var mes = dataAtual.getMonth() + 1; // Os meses em JavaScript são indexados de 0 a 11, então você precisa adicionar 1
+var ano = dataAtual.getFullYear();
+
+// Formatando o dia e o mês com dois dígitos, se necessário
+if (dia < 10) {
+    dia = '0' + dia;
+}
+if (mes < 10) {
+    mes = '0' + mes;
+}
+
+// Construindo a data no formato desejado
+var dataFormatada = dia + "/" + mes + "/" + ano;
+
+// Atribuindo a data ao elemento de entrada HTML
+document.getElementById('dateInput').value = dataFormatada;
+
+</script>
+
+</body>
+</html>
